@@ -1,9 +1,20 @@
 import React, { useState } from "react";
 import { View, SafeAreaView, Text, TextInput, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { useNavigation } from '@react-navigation/native';
 
 export default function LoginScreen({ route }) {
     const [user, setUser] = useState('')
-    const [password, setPassword] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('') 
+    
+    const [userList, setUserList] = useState([])
+    const navigation = useNavigation()
+
+    React.useEffect(()=>{
+        if(route.params?.userList){
+            setUserList(route.params.userList)
+        }
+    },[route.params?.userList])
 
     return (
         <SafeAreaView style={styles.container}>
@@ -24,12 +35,12 @@ export default function LoginScreen({ route }) {
                 onChangeText={setPassword}
             >
             </TextInput>
-            <TouchableOpacity style={styles.button} onPress={() => console.log("boton presionado")}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.replace('SignIn',{userList : userList})}>
                 <Text style={styles.buttonText}>Log in</Text>
             </TouchableOpacity>
             <View style={styles.divider} />
             <Text>If you are a new user please sign in for a new account</Text>
-            <TouchableOpacity style={styles.button} onPress={() => console.log("boton presionado")}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.replace('SignIn',{userList : userList})}>
                 <Text style={styles.buttonText}>sign in</Text>
             </TouchableOpacity>
         </SafeAreaView>

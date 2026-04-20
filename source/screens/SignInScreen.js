@@ -1,5 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, SafeAreaView, Text, TextInput, TouchableOpacity, Image, StyleSheet } from "react-native";
 
 export default function SignInScreen({ route }) {
@@ -18,11 +19,16 @@ export default function SignInScreen({ route }) {
         }
     }, [route.params?.userList])
 
-    const createUser = () => {
+    const createUser = async () => {
         if (user != null && email != null && password != null) {
-            const newUser = { user: user, email: email, password: password }
+            const newUser = { user, email, password }
             const users = [...userList, newUser]
-            navigation.replace('Login', { userList: users })
+            try {
+                await AsyncStorage.setItem('userList', JSON.stringify(users))
+                navigation.replace('Login', { userList: users })
+            } catch (error) {
+                console.error('Error, no se pudo crear la cuenta',error);
+            }
         }
     }
 

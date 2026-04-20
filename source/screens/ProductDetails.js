@@ -7,14 +7,28 @@ export default function ProductDetails({ route, navigation }) {
     const [cart,setCart]= useState([])
 
     const addToCart = async()=>{
-        const newItem = {products}
-        const items = [...cart, newItem]
         try {
-            await AsyncStorage.setItem('userItems',JSON.stringify(items))
+            const data = await AsyncStorage.getItem('cart');
+            let cart = data ? JSON.parse(data) : [];
+            
+            const exist = cart.find(item => item.id === products.id);
+            
+            if (exist) {
+                cart = cart.map(item =>
+                    item.id === products.id
+                       ? { ...item, qty: item.qty + 1 }
+                       : item
+                );
+            } else {
+                cart.push({ ...products, qty: 1 });
+            }
+            
+            await AsyncStorage.setItem('cart', JSON.stringify(cart));
+        
         } catch (error) {
-            console.log('Item not saved', error)
+            console.log("Error", error);
         }
-    }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -30,7 +44,7 @@ export default function ProductDetails({ route, navigation }) {
                 <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
                     <Text style={styles.buttonText}>Go back to home</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
+                <TouchableOpacity style={styles.button} onPress={addToCart}>
                     <Text style={styles.buttonText}>Add to Cart</Text>
                 </TouchableOpacity>
             </View>

@@ -8,6 +8,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from "../screens/HomeScreen";
 import CartScreen from "../screens/CartScreen";
 import AccountScreen from "../screens/AccountScreen";
+import OrdersScreen from "../screens/OrdersScreen";
 
 const Tabs = createBottomTabNavigator();
 
@@ -20,6 +21,8 @@ export default function NavigationTabs() {
                         return <AntDesign name="home" size={size} color={color} />;
                     } else if (route.name === 'Cart') {
                         return <AntDesign name="shopping-cart" size={size} color={color} />;
+                    } else if (route.name === 'Orders') {
+                        return <Entypo name="box" size={size} color={color} />;
                     } else if (route.name === 'Account') {
                         return <Entypo name="menu" size={size} color={color} />;
                     }
@@ -31,6 +34,7 @@ export default function NavigationTabs() {
 
             <Tabs.Screen name="Home" component={HomeScreen}/>
             <Tabs.Screen name="Cart" component={CartScreen}/>
+            <Tabs.Screen name="Orders" component={OrdersScreen} />
             <Tabs.Screen name="Account" component={AccountScreen} options={{ headerShown: false }}/>
         </Tabs.Navigator>
     );

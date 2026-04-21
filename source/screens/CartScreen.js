@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, SafeAreaView, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 export default function CartScreen() {
 
     const [cart, setCart] = useState([]);
+    const navigation = useNavigation();
 
     useFocusEffect(
         useCallback(() => {
@@ -57,6 +58,34 @@ export default function CartScreen() {
         return cart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
     };
 
+    const handleBuy = async () => {
+        if (cart.length === 0) return;
+
+        try {
+            const newOrder = {
+                id: Date.now(),
+                items: cart,
+                total: getTotal(),
+                totalItems: cart.reduce((sum, item) => sum + item.qty, 0),
+                date: new Date().toLocaleString()
+            };
+
+            const existingOrders = await AsyncStorage.getItem('orders');
+            const orders = existingOrders ? JSON.parse(existingOrders) : [];
+            orders.push(newOrder);
+
+            await AsyncStorage.setItem('orders', JSON.stringify(orders));
+
+            await AsyncStorage.removeItem('cart');
+            setCart([]);
+
+            navigation.navigate('Orders'); 
+
+        } catch (error) {
+            console.log("Error saving order", error);
+        }
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.title}>Carrito</Text>
@@ -72,13 +101,11 @@ export default function CartScreen() {
 
                             <View style={styles.card}>
 
-                                {/* 🖼 Imagen */}
                                 <Image 
                                     source={{ uri: item.image }} 
                                     style={styles.image}
                                 />
 
-                                {/* 📦 Info */}
                                 <View style={styles.info}>
                                     <Text style={styles.name} numberOfLines={2}>
                                         {item.title}
@@ -88,7 +115,6 @@ export default function CartScreen() {
                                         ${item.price}
                                     </Text>
 
-                                    {/* ➕➖ Cantidad */}
                                     <View style={styles.qtyRow}>
                                         <TouchableOpacity onPress={() => decreaseQty(item.id)}>
                                             <Text style={styles.qtyBtn}>-</Text>
@@ -103,7 +129,6 @@ export default function CartScreen() {
                                         </TouchableOpacity>
                                     </View>
 
-                                    {/* 🗑 Eliminar */}
                                     <TouchableOpacity onPress={() => removeItem(item.id)}>
                                         <Text style={styles.delete}>Eliminar</Text>
                                     </TouchableOpacity>
@@ -112,15 +137,13 @@ export default function CartScreen() {
                         )}
                     />
 
-                    {/* 💰 TOTAL */}
                     <Text style={styles.total}>
                         Total: ${getTotal()}
                     </Text>
 
-                    {/* 🛒 BOTÓN */}
                     <TouchableOpacity 
-                        style={[styles.buyButton, styles.disabledButton]} 
-                        disabled={true}
+                        style={styles.buyButton} 
+                        onPress={handleBuy}
                     >
                         <Text style={styles.buyText}>
                             Comprar

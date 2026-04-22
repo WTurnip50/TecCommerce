@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { ActivityIndicator,FlatList,View, SafeAreaView, Text, TextInput, TouchableOpacity, Image, StyleSheet } from "react-native";
-
-const HomeScreen = ({navigation}) => {
+import { ActivityIndicator, FlatList, View, SafeAreaView, Text, TextInput, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+const HomeScreen = ({ navigation }) => {
     const [products, setProducts] = useState()
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [selectedCategory, setSelectedCategory] = useState("")
 
     React.useEffect(() => {
         getProducts()
@@ -19,32 +20,52 @@ const HomeScreen = ({navigation}) => {
             }
             return res.json()
         }).then((data) => {
-            setProducts(data)
+            const productsWithExtras = data.map((item) => ({
+                ...item,
+                vendor: "TecStore"
+            }))
+            setProducts(productsWithExtras)
             setIsLoading(false)
         }).catch((error) => {
             setError(error.message)
             console.log(error.message)
         })
     }
+    const filteredProducts =
+        selectedCategory ? products.filter((p) => p.category === selectedCategory) : products
     return (
-        <View>{
-            isLoading ? (<ActivityIndicator color='red' size='large' />
+        <View>
+            <View style={styles.pickerContainer}>
+                <Picker
+                    selectedValue={selectedCategory}
+                    onValueChange={(value) => setSelectedCategory(value)}
+                    style={styles.picker}
+                >
+                    <Picker.Item label="Todos" value="" />
+                    <Picker.Item label="Men's clothing" value="men's clothing" />
+                    <Picker.Item label="Women's clothing" value="women's clothing" />
+                    <Picker.Item label="Jewelery" value="jewelery" />
+                    <Picker.Item label="Electronics" value="electronics" />
+                </Picker>
+            </View>
+            {isLoading ? (<ActivityIndicator color='red' size='large' />
             ) : error ? (
                 <Text>{error}</Text>
             ) : (
                 <FlatList showsVerticalScrollIndicator={false}
-                    data={products}
+                    data={filteredProducts}
                     renderItem={({ item }) => (
                         <View style={styles.contentContainer}>
                             <TouchableOpacity onPress={() => navigation.navigate('ProductDetails', { products: item })}>
                                 <Image source={{ uri: item.image }} style={styles.image} />
                                 <Text style={{ fontSize: 18, textAlign: 'center' }}>{item.title}</Text>
+                                <Text style={{ fontSize: 18, textAlign: 'center', color: '#00a650', fontWeight: 'bold', }}> $ {item.price}</Text>
                             </TouchableOpacity>
                         </View>
                     )}
                 />
             )
-        }
+            }
         </View>
     )
 }
@@ -69,6 +90,7 @@ const styles = StyleSheet.create(
             width: 200,
             alignSelf: 'center',
             marginBottom: 10,
+            resizeMode: 'center'
         },
         errorStyle: {
             color: 'red',

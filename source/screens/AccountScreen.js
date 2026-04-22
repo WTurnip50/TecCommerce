@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 export default function AccountScreen() {
     const [activeUser, setActiveUser] = useState(null)
     const [userName, setUserName] = useState()
+    const [userEmail, setUserEmail] = useState()
     const navigation = useNavigation()
 
     useEffect(() => {
@@ -27,35 +28,32 @@ export default function AccountScreen() {
         if (activeUser) {
             //console.log("Usuario activo cargado:", activeUser);
             setUserName(activeUser.user)
+            setUserEmail(activeUser.email)
         }
     }, [activeUser])
 
-    const logout = async () =>{
+    const logout = async () => {
         try {
             await AsyncStorage.removeItem('ActiveUser');
             navigation.replace('Login')
         } catch (error) {
             console.log('This should not happen', error)
-        } 
+        }
     }
 
     return (
         <SafeAreaView style={styles.container}>
+            <Text style={styles.userTitle}>Mi perfil</Text>
             <SafeAreaView style={styles.userContainer}>
-                <Image source={require('../resources/account-48px.png')}>
-                </Image>
-                <Text style={styles.userTitle}>{userName}</Text>
+                <Image source={require('../resources/userIcon.png')}
+                    style={styles.image} />
+                <Text style={styles.userTitle}> {userName}</Text>
             </SafeAreaView>
-            <SafeAreaView style={styles.buttonContainer}>
-                <TouchableOpacity>
-                    <Text style = {styles.buttonText}>Ver mi Perfil</Text>
-                </TouchableOpacity>
-                <TouchableOpacity>
-                    <Text style = {styles.buttonText}>Ver mis compras</Text>
-                </TouchableOpacity>
+            <SafeAreaView style={styles.optionsContainer}>
+                <Text style={styles.texts}> Username :{userName}</Text>
+                <Text style={styles.texts}> Email : {userEmail}</Text>
                 <TouchableOpacity onPress={logout}>
-                    <Text style = {styles.buttonText}>Cerrar la sesion</Text>
-
+                    <Text style={styles.texts}> Cerrar sesión</Text>
                 </TouchableOpacity>
             </SafeAreaView>
         </SafeAreaView>
@@ -65,17 +63,28 @@ const styles = StyleSheet.create(
     {
         container: {
             flex: 1,
-            backgroundColor: '#fff',
+            backgroundColor: '#57a773',
             marginTop: 35
         },
         userContainer: {
             backgroundColor: '#57a773',
             height: 'auto',
             width: 'auto',
-            flexDirection: 'row',
-            alignContent: 'center',
+            flexDirection: 'column',
+            alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: 45
+            padding: 10,
+            marginBottom: 30,
+            marginTop: 30
+        },
+        optionsContainer: {
+            flex: 1,
+            backgroundColor: '#fff'
+        },
+        texts: {
+            fontSize: 20,
+            fontWeight: 'bold',
+            padding: 10,
         },
         userTitle: {
             fontSize: 28,
@@ -84,8 +93,9 @@ const styles = StyleSheet.create(
             color: '#fff'
         },
         image: {
-            width: 48,
-            height: 48,
+            width: 100,
+            height: 100,
+            resizeMode: 'stretch'
         },
         buttonContainer: {
             height: 'auto',
@@ -96,7 +106,7 @@ const styles = StyleSheet.create(
         buttonText: {
             fontSize: 28,
             fontWeight: 'bold',
-            margin : 15
+            margin: 15
         }
     }
 )

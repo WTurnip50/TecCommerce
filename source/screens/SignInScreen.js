@@ -7,9 +7,11 @@ export default function SignInScreen({ route }) {
     const [user, setUser] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const navigation = useNavigation()
+    const [errorMsg, setErrorMsg] = useState(''); 
 
+    const navigation = useNavigation()
     const { userList } = route.params
+    
     const [newUserList, setNewUserList] = useState([])
 
     React.useEffect(() => {
